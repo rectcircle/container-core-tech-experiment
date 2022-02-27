@@ -10,6 +10,9 @@
 #include <unistd.h>    // For execv(3), sleep(3)
 #include <stdlib.h>    // For exit(3), system(3)
 
+#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+                               } while (0)
+
 #define STACK_SIZE (1024 * 1024)
 
 char *const child_args[] = {
@@ -35,7 +38,8 @@ int new_namespace_func(void *args)
 	// 说明：
 	//   MS_SLAVE 换成 MS_PRIVATE 也能达到同样的效果
 	//   等价于执行：mount --make-rslave / 命令
-	mount(NULL, "/", NULL , MS_SLAVE | MS_REC, NULL);
+	if (mount(NULL, "/", NULL , MS_SLAVE | MS_REC, NULL) == -1)
+		errExit("mount-MS_SLAVE");
 	// 使用 MS_BIND 参数将 data/binding/source 挂载（绑定）到 data/binding/target
 	// 因为在新的 Mount Namespace 中执行，所有其他进程的目录树不受影响
 	// 等价命令为：mount --bind data/binding/source data/binding/target
@@ -44,7 +48,8 @@ int new_namespace_func(void *args)
 	//              const char *filesystemtype, unsigned long mountflags,
 	//              const void *data);
 	// 更多参见：https://man7.org/linux/man-pages/man2/mount.2.html
-	mount("data/binding/source", "data/binding/target", NULL, MS_BIND, NULL);
+	if (mount("data/binding/source", "data/binding/target", NULL, MS_BIND, NULL) != -1)
+		errExit("mount-MS_BIND");
 	printf("=== new mount namespace process ===\n");
 	execv(child_args[0], child_args);
 	perror("exec");
@@ -61,10 +66,6 @@ pid_t old_namespace_exec()
 		perror("exec");
 		exit(EXIT_FAILURE);
 	}
-	if (p == -1) {
-		perror("fork");
-		exit(1);
-	}
 	return p;
 }
 
@@ -75,6 +76,8 @@ int main()
 							 PROT_READ | PROT_WRITE,
 							 MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK,
 							 -1, 0);
+	if (child_stack == MAP_FAILED)
+		errExit("mmap");
 	// 创建新进程，并为该进程创建一个 Mount Namespace（CLONE_NEWNS），并执行 new_namespace_func 函数
 	// clone 库函数声明为：
 	// int clone(int (*fn)(void *), void *stack, int flags, void *arg, ...
@@ -82,13 +85,12 @@ int main()
 	// 更多参见：https://man7.org/linux/man-pages/man2/clone.2.html
 	pid_t p1 = clone(new_namespace_func, child_stack + STACK_SIZE, SIGCHLD | CLONE_NEWNS, NULL);
 	if (p1 == -1)
-	{
-		perror("clone");
-		exit(1);
-	}
+		errExit("clone");
 	sleep(5);
 	// 创建新的进程（不创建 Namespace），并执行测试命令
 	pid_t p2 = old_namespace_exec();
+	if (p2 == -1)
+		errExit("fork");
 	waitpid(p1, NULL, 0);
 	waitpid(p2, NULL, 0);
 	return 0;

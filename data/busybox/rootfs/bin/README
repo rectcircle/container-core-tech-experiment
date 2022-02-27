@@ -1,0 +1,12 @@
+准备 busybox 二进制文件以及需要命令
+
+    mkdir -p data/busybox/rootfs/bin
+    cd data/busybox/rootfs/bin
+    wget https://busybox.net/downloads/binaries/1.35.0-x86_64-linux-musl/busybox
+    chmod +x busybox
+    # ./busybox --install -s ./
+    ln -s busybox sh
+    ln -s busybox ls
+    cd ..
+    mkdir .oldrootfs
+    touch README
