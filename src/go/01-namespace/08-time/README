@@ -1,0 +1,1 @@
+Go 尚不支持 TIME 名字空间，参见：https://github.com/golang/go/issues/49779

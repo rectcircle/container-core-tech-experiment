@@ -1,0 +1,35 @@
+{
+    "terminal.integrated.defaultProfile.linux":"bash",
+    "gopls": {
+        "build.env": {
+            "GOOS": "linux",
+            "GOARCH": "amd64"
+        },
+        "build.experimentalWorkspaceModule": true,
+        "formatting.gofumpt": true,
+        "ui.semanticTokens": true,
+        "ui.diagnostic.analyses": {
+            "nilness": true,
+            "shadow": true,
+            "unusedparams": true,
+            "unusedwrite": true,
+        },
+    },
+    "files.associations": {
+        ".faasignore": "gitignore",
+        "*.log": "log",
+        "*.json5": "jsonc",
+        "unistd.h": "c",
+        "sched.h": "c",
+        "signal.h": "c",
+        "stdio.h": "c",
+        "wait.h": "c",
+        "types.h": "c",
+        "mman.h": "c",
+        "stdlib.h": "c"
+    },
+    "remote.SSH.defaultExtensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "golang.go",
+    ]
+}
