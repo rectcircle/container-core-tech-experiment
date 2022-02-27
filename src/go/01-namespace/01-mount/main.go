@@ -29,6 +29,7 @@ func newNamespaceExec() <-chan error {
 		// 说明：
 		//   --make-rprivate 换成 --make-rslave 也能达到同样的效果
 		//   等价于系统调用：mount(NULL, "/", NULL , MS_PRIVATE | MS_REC, NULL)
+		// Go 语言对应 api 为：syscall.Mount
 		"mount --make-rprivate /"+
 			// 将 data/binding/source 挂载（绑定）到 data/binding/target
 			// 因为在新的 Mount Namespace 中执行，所有其他进程的目录树不受影响
