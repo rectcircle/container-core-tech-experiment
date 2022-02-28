@@ -20,6 +20,20 @@ const (
 	script = "export PATH=/bin && ls / && ls /bin"
 )
 
+func runTestScript(tip string) <-chan error {
+	fmt.Println(tip)
+	cmd := exec.Command("/bin/sh", "-cx", script)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	result := make(chan error)
+	go func() {
+		result <- cmd.Run()
+	}()
+	return result
+}
+
 func newNamespaceExec() <-chan error {
 	cmd := exec.Command(os.Args[0], "sub")
 	// 创建新进程，并为该进程创建一个 Mount Namespace（syscall.CLONE_NEWNS）
@@ -38,7 +52,7 @@ func newNamespaceExec() <-chan error {
 	return result
 }
 
-func pivotRootAndRun() {
+func pivotRootAndRun() <-chan error {
 	// 首先，需要阻止挂载事件传播到其他 Mount Namespace，参见：https://man7.org/linux/man-pages/man7/mount_namespaces.7.html#NOTES
 	// 如果不执行这个语句， cat /proc/self/mountinfo 所有行将会包含 shared，这样在这个子进程中执行 mount 其他进程也会受影响
 	// 关于 Shared subtrees 更多参见：
@@ -72,21 +86,13 @@ func pivotRootAndRun() {
 	if err := os.Chdir("/"); err != nil {
 		panic(err)
 	}
-	fmt.Println("=== new mount namespace and pivot_root process ===")
-	cmd := exec.Command("/bin/sh", "-xc", script)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		panic(err)
-	}
+	return runTestScript("=== new mount namespace and pivot_root process ===")
 }
 
 func main() {
-	// 1. 执行 newNamespaceExec，启动一个具有新的 Mount Namespace 的进程
-	// 2. 该进程执行 pivotRootAndRun，配置 Mount，调用 pivotRoot 并运行测试脚本
 	switch len(os.Args) {
 	case 1:
+		// 1. 执行 newNamespaceExec，启动一个具有新的 Mount Namespace 的进程
 		r1 := newNamespaceExec()
 		err1 := <-r1
 		if err1 != nil {
@@ -94,8 +100,11 @@ func main() {
 		}
 		return
 	case 2:
+		// 2. 该进程执行 pivotRootAndRun，配置 Mount，调用 pivotRoot 并运行测试脚本
 		if os.Args[1] == sub {
-			pivotRootAndRun()
+			if err := <-pivotRootAndRun(); err != nil {
+				panic(err)
+			}
 			return
 		}
 	}
