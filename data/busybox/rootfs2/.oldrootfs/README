@@ -1,0 +1,2 @@
+pivot_root 系统调用，用来保存旧的 rootfs 的挂载点。
+该目录应该由程序 mkdir(2) 创建，在 pivot_root(2) 后，再挂载后，然后通过 rmdir(2) 删除。
