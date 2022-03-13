@@ -26,7 +26,8 @@
         "wait.h": "c",
         "types.h": "c",
         "mman.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "cstdio": "c"
     },
     "remote.SSH.defaultExtensions": [
         "ms-vscode.cpptools-extension-pack",
