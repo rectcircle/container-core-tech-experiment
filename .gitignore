@@ -80,6 +80,7 @@ go.work
 
 # Kernel Module Compile Results
 *.mod*
+!go.mod
 *.cmd
 .tmp_versions/
 modules.order
