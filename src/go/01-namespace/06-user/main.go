@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	cmd := exec.Command("/bin/bash")
+	cmd := exec.Command("/bin/bash", "-c", "cat /proc/$$/status | grep Cap")
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags: syscall.CLONE_NEWUSER,
 	}

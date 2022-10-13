@@ -27,7 +27,9 @@
         "types.h": "c",
         "mman.h": "c",
         "stdlib.h": "c",
-        "cstdio": "c"
+        "cstdio": "c",
+        "fcntl.h": "c",
+        "alloca.h": "c"
     },
     "remote.SSH.defaultExtensions": [
         "ms-vscode.cpptools-extension-pack",
