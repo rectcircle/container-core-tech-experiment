@@ -28,7 +28,7 @@ func printSelfCPUPercent(p *process.Process) {
 }
 
 func attachSelfToCgroup(cgroupPath string) error {
-	return os.WriteFile(path.Join(cgroupPath, "cgroup.procs"), []byte(fmt.Sprint(os.Getpid())), 0644)
+	return os.WriteFile(path.Join(cgroupPath, "cgroup.procs"), []byte(fmt.Sprint(os.Getpid())), 0o644)
 }
 
 func printSelfCgroup(subsys string) {
@@ -48,8 +48,9 @@ func printSelfCgroup(subsys string) {
 	panic(fmt.Errorf("subsys not found: %s", subsys))
 }
 
-func main() {
+// go build ./src/go/01-namespace/07-cgroup/v1/01-cpu && sudo ./01-cpu; rm -rf ./01-cpu
 
+func main() {
 	// 启动 CPU 负载
 	go usage100PercentCPU()
 
@@ -92,7 +93,7 @@ func main() {
 	}
 	cpuCore := 0.2
 	cpuCFSQuotaInt := int(cpuCore * float64(cpuCFSPeriodInt))
-	err = os.WriteFile(cpuCFSQuotaPath, []byte(fmt.Sprint(cpuCFSQuotaInt)), 0644)
+	err = os.WriteFile(cpuCFSQuotaPath, []byte(fmt.Sprint(cpuCFSQuotaInt)), 0o644)
 	if err != nil {
 		panic(err)
 	}

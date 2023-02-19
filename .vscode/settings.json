@@ -5,7 +5,6 @@
             "GOOS": "linux",
             "GOARCH": "amd64"
         },
-        "build.experimentalWorkspaceModule": true,
         "formatting.gofumpt": true,
         "ui.semanticTokens": true,
         "ui.diagnostic.analyses": {
